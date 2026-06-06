@@ -1,0 +1,3487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<base href="/product-assets/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>喵喵美甲试戴间</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg-primary: #FFFAF5;
+  --bg-card: #FFFFFF;
+  --text-primary: #4A3728;
+  --text-secondary: #8B7355;
+  --text-light: #B8A08A;
+  --accent-pink: #FFB5C5;
+  --accent-pink-dark: #FF8FAB;
+  --accent-pink-light: #FFE4EC;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-card: 0 2px 12px rgba(74, 55, 40, 0.06);
+  --shadow-elevated: 0 4px 20px rgba(74, 55, 40, 0.1);
+  --tab-height: 60px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ===== SVG PAW PRINT ===== */
+.paw-print {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  opacity: 0.3;
+}
+
+.paw-accent {
+  position: absolute;
+  opacity: 0.12;
+}
+
+/* ===== COVER PAGE ===== */
+.cover-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  background: var(--bg-primary);
+}
+
+.cover-page.hidden {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+.cover-inner {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.cover-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
+
+.cover-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--accent-pink);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFade 3s ease-in-out infinite;
+  box-shadow: 0 0 6px 2px rgba(255, 181, 197, 0.5);
+}
+
+@keyframes particleFade {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+  50% { opacity: 0.8; transform: translateY(-20px) scale(1); }
+}
+
+.cover-tap-area {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 7%;
+  cursor: pointer;
+  border-radius: 30px;
+  z-index: 10;
+}
+
+.cover-tap-hint {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* ===== APP SHELL ===== */
+.app-shell {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  height: 50px;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.header-back {
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ===== CONTENT AREA ===== */
+.app-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.tab-panel.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== TAB BAR ===== */
+.tab-bar {
+  height: 70px;
+  background: white;
+  border-top: 1px solid rgba(74, 55, 40, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 16px;
+  transition: all 0.2s ease;
+}
+
+.tab-item .tab-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-item .tab-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke: #999;
+  fill: none;
+  transition: all 0.2s ease;
+}
+
+.tab-item.active .tab-icon svg {
+  stroke: var(--text-primary);
+}
+
+.tab-item .tab-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.tab-item.active .tab-label {
+  color: var(--text-primary);
+}
+
+/* ===== SECTION STYLES ===== */
+.section {
+  padding: 20px 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.section-action {
+  font-size: 13px;
+  color: var(--accent-pink-dark);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* ===== CARD STYLES ===== */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* ===== TAB 1: TRY-ON ===== */
+.upload-section {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.upload-area {
+  flex: 1;
+  border: 2px dashed var(--accent-pink);
+  border-radius: var(--radius);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 140px;
+  transition: all 0.2s ease;
+  background: rgba(255, 181, 197, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-area:hover {
+  border-color: var(--accent-pink-dark);
+  background: rgba(255, 181, 197, 0.1);
+}
+
+.upload-area.has-image {
+  border-style: solid;
+  padding: 0;
+}
+
+.upload-area.has-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-pink-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent-pink-dark);
+}
+
+.upload-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.upload-format {
+  font-size: 10px;
+  color: var(--text-light);
+}
+
+.mascot-bubble {
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.mascot-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent-pink-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mascot-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.speech-bubble {
+  background: white;
+  border: 1px solid rgba(255, 181, 197, 0.3);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  position: relative;
+  line-height: 1.5;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-left: 1px solid rgba(255, 181, 197, 0.3);
+  border-top: 1px solid rgba(255, 181, 197, 0.3);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Upload sub-tabs */
+.upload-tabs {
+  display: flex;
+  gap: 0;
+  background: #F5F0EB;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 12px;
+}
+
+.upload-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-tab.active {
+  background: white;
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* Tips section */
+.tips-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tip-item {
+  flex: 1;
+  background: rgba(255, 181, 197, 0.08);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.tip-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 4px;
+  background: var(--accent-pink-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tip-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--accent-pink-dark);
+}
+
+.tip-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.tip-desc {
+  font-size: 10px;
+  color: var(--text-light);
+}
+
+/* Status indicators */
+.upload-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+}
+
+.status-dot.done {
+  background: #4CAF50;
+}
+
+/* AI Try-on button */
+.btn-tryon {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  cursor: pointer;
+  margin-top: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-tryon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-tryon:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+/* Loading state */
+.loading-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 250, 245, 0.9);
+  z-index: 100;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.loading-overlay.show {
+  display: flex;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--accent-pink-light);
+  border-top-color: var(--accent-pink-dark);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Recommendation cards */
+.recommend-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.recommend-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.recommend-card {
+  flex-shrink: 0;
+  width: 130px;
+  cursor: pointer;
+}
+
+.recommend-card-img {
+  width: 130px;
+  height: 130px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-card);
+}
+
+.recommend-card-img .nail-gradient {
+  width: 100%;
+  height: 100%;
+}
+
+.hot-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #FF4757;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.recommend-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recommend-card-tag {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* Ask AI Section */
+.ask-ai-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.ask-ai-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-pink-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.ask-ai-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ask-ai-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ask-ai-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: var(--accent-pink);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ask-ai-btn:active {
+  transform: scale(0.95);
+}
+
+/* Chatbot Overlay */
+.chatbot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 5000;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.chatbot-overlay.show {
+  display: flex;
+}
+
+.chatbot-panel {
+  width: 100%;
+  max-width: 430px;
+  height: 70vh;
+  background: var(--bg-primary);
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.chatbot-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(74, 55, 40, 0.06);
+}
+
+.chatbot-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chatbot-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F0EBE6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chatbot-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  animation: msgIn 0.3s ease;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-msg.bot {
+  background: white;
+  color: var(--text-primary);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-card);
+}
+
+.chat-msg.user {
+  background: var(--accent-pink);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 8px;
+}
+
+.quick-reply {
+  padding: 8px 14px;
+  border: 1px solid var(--accent-pink);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--accent-pink-dark);
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.quick-reply:active {
+  background: var(--accent-pink-light);
+}
+
+.chatbot-input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(74, 55, 40, 0.06);
+  background: white;
+}
+
+.chatbot-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid rgba(74, 55, 40, 0.1);
+  border-radius: 20px;
+  font-size: 13px;
+  outline: none;
+  background: #F9F6F3;
+}
+
+.chatbot-input:focus {
+  border-color: var(--accent-pink);
+}
+
+.chatbot-send {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chatbot-send svg {
+  width: 16px;
+  height: 16px;
+  stroke: white;
+}
+
+/* Chat image preview floating modal - on top of chatbot */
+.chat-image-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.chat-image-preview.show {
+  display: flex;
+}
+.chat-image-preview-box {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  max-width: min(420px, 92vw);
+  width: 100%;
+  max-height: 88vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: zoomIn 0.25s ease;
+}
+.chat-image-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  z-index: 2;
+  border: none;
+}
+.chat-image-preview-close:hover { background: rgba(0,0,0,0.8); }
+.chat-image-preview-img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  background: #f5f5f5;
+  display: block;
+}
+.chat-image-preview-info {
+  padding: 14px 16px 16px;
+  border-top: 1px solid #eee;
+}
+.chat-image-preview-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #20242a;
+  margin-bottom: 6px;
+}
+.chat-image-preview-desc {
+  font-size: 13px;
+  color: #69707d;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.chat-image-preview-actions {
+  display: flex;
+  gap: 8px;
+}
+.chat-image-preview-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.chat-image-preview-btn.primary {
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  color: #fff;
+}
+.chat-image-preview-btn.secondary {
+  background: var(--accent-pink-light);
+  color: var(--accent-pink-dark);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  box-shadow: var(--shadow-card);
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-light);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+/* ===== TAB 2: STYLES ===== */
+.filter-tags {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 16px 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.filter-tags::-webkit-scrollbar { display: none; }
+
+.filter-tag {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: white;
+  border: 1px solid rgba(74, 55, 40, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tag.active {
+  background: var(--accent-pink);
+  color: white;
+  border-color: var(--accent-pink);
+}
+
+.styles-series {
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.series-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.series-scroll::-webkit-scrollbar { display: none; }
+
+.series-item {
+  flex-shrink: 0;
+  width: 80px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.series-item-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.series-item-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.styles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 16px 20px;
+}
+
+.style-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.style-card:active {
+  transform: scale(0.97);
+}
+
+.style-card-img {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.style-card-img .nail-gradient {
+  width: 100%;
+  height: 100%;
+}
+
+.style-card-fav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.style-card-fav svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--accent-pink-dark);
+  fill: none;
+  transition: fill 0.2s ease;
+}
+
+.style-card-fav.faved svg {
+  fill: var(--accent-pink-dark);
+}
+
+.style-card-info {
+  padding: 10px 12px;
+}
+
+.style-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.style-card-heat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-light);
+}
+
+.heat-bar {
+  width: 40px;
+  height: 3px;
+  background: #F0EBE6;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.heat-bar-fill {
+  height: 100%;
+  background: var(--accent-pink);
+  border-radius: 2px;
+}
+
+/* ===== TAB 3: PROFILE ===== */
+.profile-greeting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: var(--radius);
+  margin: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--accent-pink-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-greeting-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.profile-greeting-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.profile-section {
+  margin: 0 16px 16px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-subsection {
+  margin-bottom: 12px;
+}
+
+.profile-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.profile-subsection-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: #F5F0EB;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.chip.selected {
+  background: var(--accent-pink-light);
+  color: var(--accent-pink-dark);
+  border-color: var(--accent-pink);
+}
+
+/* Shop cards */
+.shop-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #FAFAFA;
+  border-radius: 12px;
+}
+
+.shop-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-pink-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-card-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent-pink-dark);
+}
+
+.shop-card-info {
+  flex: 1;
+}
+
+.shop-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shop-card-addr {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.shop-card-btn {
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: var(--accent-pink);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+/* Consent checkbox */
+.consent-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.consent-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #DDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.consent-box.checked {
+  background: var(--accent-pink-dark);
+  border-color: var(--accent-pink-dark);
+}
+
+.consent-box .consent-check {
+  display: none;
+}
+
+.consent-box.checked .consent-check {
+  display: block;
+}
+
+.consent-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.consent-desc {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Fav pick panel in tryon */
+.fav-pick-panel {
+  padding: 12px 0;
+}
+
+.fav-pick-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.fav-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fav-pick-item {
+  height: 70px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.fav-pick-item.selected {
+  border-color: var(--accent-pink-dark);
+  transform: scale(0.95);
+  box-shadow: 0 0 0 2px rgba(255, 143, 171, 0.3);
+}
+
+.fav-pick-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 10px;
+}
+
+/* ===== TAB 4: FAVORITES ===== */
+.favorites-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 16px;
+}
+
+.fav-item {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.fav-item:active {
+  transform: scale(0.95);
+}
+
+.fav-item-img {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.fav-item-img .nail-gradient {
+  width: 100%;
+  height: 100%;
+}
+
+.fav-item-name {
+  padding: 6px 8px;
+  font-size: 10px;
+  color: var(--text-primary);
+  background: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.favorites-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+
+.favorites-empty svg {
+  width: 48px;
+  height: 48px;
+  stroke: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.favorites-empty p {
+  font-size: 14px;
+}
+
+/* ===== STYLE DETAIL OVERLAY ===== */
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  z-index: 4000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-overlay.show {
+  display: flex;
+}
+
+.detail-header {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.detail-back {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.detail-back svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-primary);
+}
+
+.detail-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.detail-image {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.detail-image .nail-gradient {
+  width: 100%;
+  height: 100%;
+}
+
+.detail-info {
+  padding: 20px 16px;
+}
+
+.detail-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.detail-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.detail-tag {
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  background: var(--accent-pink-light);
+  color: var(--accent-pink-dark);
+}
+
+.detail-shop-section {
+  padding: 16px;
+  background: white;
+  border-radius: var(--radius);
+  margin: 0 16px 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.detail-shop-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.detail-bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid rgba(74, 55, 40, 0.06);
+  flex-shrink: 0;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+}
+
+.detail-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:active {
+  transform: scale(0.96);
+}
+
+.detail-btn-outline {
+  background: white;
+  border: 1.5px solid var(--accent-pink);
+  color: var(--accent-pink-dark);
+}
+
+.detail-btn-primary {
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  color: white;
+}
+
+.detail-btn-secondary {
+  background: #F5F0EB;
+  color: var(--text-primary);
+}
+
+/* ===== NAIL GRADIENTS ===== */
+.nail-gradient {
+  display: block;
+}
+
+.ng-1 { background: linear-gradient(135deg, #FFB5C5, #FF69B4, #FF1493); }
+.ng-2 { background: linear-gradient(135deg, #FFE4E1, #FFB6C1, #DB7093); }
+.ng-3 { background: linear-gradient(135deg, #E8D5B7, #D4A574, #8B6914); }
+.ng-4 { background: linear-gradient(135deg, #87CEEB, #4682B4, #1E3A5F); }
+.ng-5 { background: linear-gradient(135deg, #98FB98, #3CB371, #2E8B57); }
+.ng-6 { background: linear-gradient(135deg, #DDA0DD, #BA55D3, #8B008B); }
+.ng-7 { background: linear-gradient(135deg, #FFD700, #FFA500, #FF6347); }
+.ng-8 { background: linear-gradient(135deg, #F0E68C, #BDB76B, #556B2F); }
+.ng-9 { background: linear-gradient(135deg, #FFE4C4, #FFDAB9, #CD853F); }
+.ng-10 { background: linear-gradient(135deg, #E6E6FA, #D8BFD8, #9370DB); }
+.ng-11 { background: linear-gradient(135deg, #F08080, #CD5C5C, #8B0000); }
+.ng-12 { background: linear-gradient(135deg, #AFEEEE, #48D1CC, #008B8B); }
+.ng-13 { background: linear-gradient(135deg, #FFEFD5, #FFE4B5, #DEB887); }
+.ng-14 { background: linear-gradient(135deg, #FFC0CB, #FF69B4, #C71585); }
+.ng-15 { background: linear-gradient(135deg, #B0E0E6, #87CEFA, #6495ED); }
+
+/* ===== UTILITY ===== */
+.divider {
+  height: 8px;
+  background: rgba(74, 55, 40, 0.02);
+}
+
+.hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+.slide-in {
+  animation: slideInUp 0.4s ease;
+}
+
+
+.chat-recommend-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-recommend-card {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid rgba(255, 105, 150, 0.18);
+  border-radius: 14px;
+  background: #fffaf7;
+  box-shadow: 0 6px 18px rgba(121, 77, 55, 0.08);
+  text-align: left;
+}
+
+.chat-recommend-card img {
+  width: 74px;
+  height: 74px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #fff1f5;
+}
+
+.chat-recommend-card strong {
+  display: block;
+  margin-bottom: 2px;
+  color: #4d3326;
+  font-size: 14px;
+}
+
+.chat-recommend-card p {
+  margin: 3px 0 0;
+  color: #8d725b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.chat-recommend-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: #ffeff5;
+  color: #ff4f86;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+</style>
+
+<style id="codex-reupload-style">
+.upload-area.has-image {
+  position: relative;
+}
+.reupload-btn {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  border: none;
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: rgba(255, 133, 170, 0.95);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(255, 133, 170, 0.28);
+  cursor: pointer;
+}
+.upload-selected-caption {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 58px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.92);
+  color: #5a3f31;
+  font-size: 13px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover-page" id="coverPage">
+  <div class="cover-inner">
+    <img src="cover_new.png" class="cover-bg-img" alt="Cover">
+    <div class="cover-particles" id="coverParticles"></div>
+    <div class="cover-tap-area" onclick="enterApp()">
+      <span class="cover-tap-hint"></span>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell" id="appShell">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="header-back" onclick="goToCover()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>返回</span>
+    </div>
+    <div class="header-title">喵喵美甲试戴间</div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="app-content">
+    <!-- TAB 1: Try-on -->
+    <div class="tab-panel active" id="panelTryon">
+      <!-- Upload Section -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            上传试戴
+          </div>
+        </div>
+        <div class="section-subtitle">上传手部照片，AI为你试戴美甲效果</div>
+
+        <!-- Upload Sub-tabs -->
+        <div class="upload-tabs">
+          <div class="upload-tab active" data-uptab="hand" onclick="switchUploadTab('hand')">上传手图</div>
+          <div class="upload-tab" data-uptab="style" onclick="switchUploadTab('style')">上传款式</div>
+          <div class="upload-tab" data-uptab="fav" onclick="switchUploadTab('fav')">选择收藏款式</div>
+        </div>
+
+        <div class="upload-section">
+          <!-- Upload area -->
+          <div class="upload-area" id="uploadHandArea" onclick="document.getElementById('handInput').click()">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            </div>
+            <div class="upload-text">点击上传手部照片</div>
+            <div class="upload-format">支持 JPG / PNG 格式</div>
+            <input type="file" id="handInput" class="hidden-input" accept="image/*" onchange="handleHandUpload(event)">
+          </div>
+
+          <!-- Mascot -->
+          <div class="mascot-bubble">
+            <div class="mascot-img">
+              <img src="cat_crown.png" alt="mascot" style="width:100%;height:100%;object-fit:contain;">
+            </div>
+            <div class="speech-bubble">上传照片后，我帮你试戴美甲哦~</div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-row">
+          <div class="tip-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+            </div>
+            <div class="tip-title">光线充足</div>
+            <div class="tip-desc">效果更自然</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 11V6a2 2 0 00-2-2h0a2 2 0 00-2 2v0"/><path d="M14 10V4a2 2 0 00-2-2h0a2 2 0 00-2 2v6"/><path d="M10 10.5V6a2 2 0 00-2-2h0a2 2 0 00-2 2v8"/><path d="M18 8a2 2 0 012 2v7.4a6 6 0 01-.7 2.8L18 22H8.3a2 2 0 01-1.7-1l-2.4-4a2 2 0 01.3-2.4l.7-.7a2 2 0 012.7 0L10 16"/></svg>
+            </div>
+            <div class="tip-title">手指伸直</div>
+            <div class="tip-desc">效果更精准</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <div class="tip-title">背景干净</div>
+            <div class="tip-desc">效果更清晰</div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="upload-status">
+          <span class="status-dot" id="statusHand"></span><span id="statusHandText">未上传手图</span>
+          <span style="margin-left:12px" class="status-dot" id="statusStyle"></span><span id="statusStyleText">未选择款式</span>
+        </div>
+
+        <!-- AI Button -->
+        <button class="btn-tryon" id="btnTryon" disabled onclick="startTryon()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          开始AI试戴
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Recommendations -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            为你推荐
+          </div>
+          <div class="section-action" onclick="window.refreshRecommend()">换一批</div>
+        </div>
+        <div class="section-subtitle">根据你的喜好，推荐心动美甲款式</div>
+        <div class="recommend-scroll" id="recommendScroll"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Ask AI -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">还没找到喜欢的美甲？</div>
+        </div>
+        <div class="ask-ai-banner">
+          <div class="ask-ai-icon">
+            <img src="cat_paint.png" alt="AI Cat" style="width:100%;height:100%;object-fit:contain;">
+          </div>
+          <div class="ask-ai-text">告诉我你的风格偏好，AI为你精准推荐~</div>
+          <button class="ask-ai-btn" onclick="openChatbot()">告诉我</button>
+        </div>
+      </div>
+
+      <!-- AI Top3 Recommendations -->
+      <div class="section" id="aiTop3Panel" style="display:none !important;">
+        <div class="section-header">
+          <div class="section-title">AI为你精选 Top3</div>
+          <div class="section-action" onclick="loadAiTop3FromInput()">刷新</div>
+        </div>
+        <div class="section-subtitle" id="aiTop3Note">2个全网灵感 + 1个店内相似款</div>
+        <div class="recommend-scroll" id="aiTop3Scroll"></div>
+      </div>
+
+      <!-- Loading overlay -->
+      <div class="loading-overlay" id="tryonLoading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">AI正在为你试戴中...</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Styles -->
+    <div class="tab-panel" id="panelStyles">
+      <div style="padding-top: 14px;">
+        <div class="filter-tags" id="filterTags">
+          <div class="filter-tag active" data-filter="all">全部</div>
+          <div class="filter-tag" data-filter="hot">网红款</div>
+          <div class="filter-tag" data-filter="season">季节限定</div>
+          <div class="filter-tag" data-filter="french">法式</div>
+          <div class="filter-tag" data-filter="cateye">猫眼</div>
+          <div class="filter-tag" data-filter="gradient">渐变</div>
+        </div>
+
+        <div class="section" style="padding-top:0">
+          <div class="section-header">
+            <div class="section-title">系列款式</div>
+          </div>
+          <div class="series-scroll" id="seriesScroll"></div>
+        </div>
+
+        <div class="styles-grid" id="stylesGrid"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Profile -->
+    <div class="tab-panel" id="panelProfile">
+      <div class="profile-greeting">
+        <div class="profile-avatar">
+          <svg width="48" height="48" viewBox="0 0 100 100" fill="none">
+            <ellipse cx="50" cy="55" rx="28" ry="26" fill="#FEFEFE" stroke="#4A3728" stroke-width="2.5"/>
+            <path d="M28 35 L24 16 L38 28 Z" fill="#FFF5E0" stroke="#4A3728" stroke-width="2"/>
+            <path d="M72 35 L76 16 L62 28 Z" fill="#888" stroke="#4A3728" stroke-width="2"/>
+            <circle cx="40" cy="48" r="3.5" fill="#4A3728"/>
+            <circle cx="60" cy="48" r="3.5" fill="#4A3728"/>
+            <circle cx="41" cy="47" r="1.2" fill="white"/>
+            <circle cx="61" cy="47" r="1.2" fill="white"/>
+            <path d="M45 58 Q50 62 55 58" stroke="#4A3728" stroke-width="2" fill="none"/>
+            <ellipse cx="33" cy="56" rx="4" ry="2.5" fill="#FFB5C5" opacity="0.5"/>
+            <ellipse cx="67" cy="56" rx="4" ry="2.5" fill="#FFB5C5" opacity="0.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="profile-greeting-text">Hi~欢迎来到喵喵美甲</div>
+          <div class="profile-greeting-sub">完善信息，获得更精准的推荐</div>
+        </div>
+      </div>
+
+      <!-- Nail Shape -->
+      <div class="profile-section">
+        <div class="profile-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          甲型
+        </div>
+        <div class="profile-subsection">
+          <div class="profile-subsection-label">圆形甲</div>
+          <div class="chip-group">
+            <div class="chip" onclick="toggleChip(this)">圆形</div>
+            <div class="chip" onclick="toggleChip(this)">椭圆</div>
+          </div>
+        </div>
+        <div class="profile-subsection">
+          <div class="profile-subsection-label">方形甲</div>
+          <div class="chip-group">
+            <div class="chip" onclick="toggleChip(this)">方形</div>
+            <div class="chip" onclick="toggleChip(this)">方圆</div>
+            <div class="chip" onclick="toggleChip(this)">梯形</div>
+          </div>
+        </div>
+        <div class="profile-subsection">
+          <div class="profile-subsection-label">尖形甲</div>
+          <div class="chip-group">
+            <div class="chip" onclick="toggleChip(this)">杏仁</div>
+            <div class="chip" onclick="toggleChip(this)">尖头型</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hand Shape -->
+      <div class="profile-section">
+        <div class="profile-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2" stroke-linecap="round"><path d="M18 11V6a2 2 0 00-2-2h0a2 2 0 00-2 2v0"/><path d="M14 10V4a2 2 0 00-2-2h0a2 2 0 00-2 2v6"/><path d="M10 10.5V6a2 2 0 00-2-2h0a2 2 0 00-2 2v8"/><path d="M18 8a2 2 0 012 2v7.4a6 6 0 01-.7 2.8L18 22H8.3a2 2 0 01-1.7-1l-2.4-4a2 2 0 01.3-2.4l.7-.7a2 2 0 012.7 0L10 16"/></svg>
+          手型
+        </div>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">尖锥手</div>
+          <div class="chip" onclick="toggleChip(this)">骨节手</div>
+          <div class="chip" onclick="toggleChip(this)">修长手</div>
+          <div class="chip" onclick="toggleChip(this)">匀称手</div>
+          <div class="chip" onclick="toggleChip(this)">肉肉手</div>
+          <div class="chip" onclick="toggleChip(this)">短粗手</div>
+        </div>
+      </div>
+
+      <!-- Style Preferences -->
+      <div class="profile-section">
+        <div class="profile-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          风格喜好
+        </div>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">猫眼</div>
+          <div class="chip" onclick="toggleChip(this)">法式</div>
+          <div class="chip" onclick="toggleChip(this)">日系</div>
+          <div class="chip" onclick="toggleChip(this)">韩系</div>
+          <div class="chip" onclick="toggleChip(this)">欧美</div>
+          <div class="chip" onclick="toggleChip(this)">新中式</div>
+        </div>
+      </div>
+
+      <!-- AI Recommendation Consent -->
+      <div class="profile-section">
+        <label class="consent-checkbox" onclick="toggleConsent(this)">
+          <div class="consent-box" id="consentBox">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="consent-check"><path d="M3 7l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="consent-text">同意根据手部特征进行AI推荐</span>
+        </label>
+        <div class="consent-desc">开启后，AI将根据你填写的甲型、手型等特征，为你智能推荐最适合的美甲款式</div>
+      </div>
+
+      <!-- Nail Appointment -->
+      <div class="profile-section">
+        <div class="profile-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          美甲预约
+        </div>
+        <div class="shop-cards">
+          <div class="shop-card">
+            <div class="shop-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="shop-card-info">
+              <div class="shop-card-name">喵喵美甲(旗舰店)</div>
+              <div class="shop-card-addr">朝阳区三里屯太古里北区</div>
+            </div>
+            <button class="shop-card-btn">预约</button>
+          </div>
+          <div class="shop-card">
+            <div class="shop-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="shop-card-info">
+              <div class="shop-card-name">喵喵美甲(国贸店)</div>
+              <div class="shop-card-addr">朝阳区国贸商城B1层</div>
+            </div>
+            <button class="shop-card-btn">预约</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+
+    <!-- TAB 4: Favorites -->
+    <div class="tab-panel" id="panelFavorites">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">我的收藏</div>
+          <div class="section-action" id="favCount">0 款</div>
+        </div>
+      </div>
+      <div id="favoritesContent">
+        <div class="favorites-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <p>还没有收藏哦，快去发现喜欢的款式吧</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" data-tab="tryon" onclick="switchTab('tryon')">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5V20a2 2 0 01-2 2H5a2 2 0 01-2-2V10.5z" fill="rgba(255,181,197,0.3)"/>
+          <path d="M3 10.5L12 3l9 7.5V20a2 2 0 01-2 2H5a2 2 0 01-2-2V10.5z"/>
+          <!-- Cat ears -->
+          <path d="M8 6.5L6.5 3.5M16 6.5L17.5 3.5" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <span class="tab-label">试戴</span>
+    </div>
+    <div class="tab-item" data-tab="styles" onclick="switchTab('styles')">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Nail polish shape -->
+          <rect x="9" y="2" width="6" height="5" rx="1.5"/>
+          <path d="M8 7h8v0c0 0 2 0 2 3v6c0 3-2 6-6 6s-6-3-6-6v-6c0-3 2-3 2-3z" fill="rgba(255,235,230,0.5)"/>
+        </svg>
+      </div>
+      <span class="tab-label">款式</span>
+    </div>
+    <div class="tab-item" data-tab="profile" onclick="switchTab('profile')">
+      <div class="tab-icon">
+        <img src="cat_profile_icon.png" alt="我的" style="width:30px;height:30px;object-fit:contain;">
+      </div>
+      <span class="tab-label">我的</span>
+    </div>
+    <div class="tab-item" data-tab="favorites" onclick="switchTab('favorites')">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+        </svg>
+      </div>
+      <span class="tab-label">收藏</span>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT OVERLAY -->
+<div class="chatbot-overlay" id="chatbotOverlay" onclick="closeChatbot(event)">
+  <div class="chatbot-panel" onclick="event.stopPropagation()">
+    <div class="chatbot-header">
+      <div class="chatbot-header-title">AI推荐助手</div>
+      <div class="chatbot-close" onclick="closeChatbot()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A3728" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="chatbot-messages" id="chatMessages">
+      <div class="chat-msg bot">Hi~我是喵喵美甲AI助手，告诉我你喜欢什么风格，我来帮你推荐!</div>
+    </div>
+    <div class="chat-quick-replies" id="quickReplies">
+      <div class="quick-reply" onclick="sendQuickReply(this)">简约法式</div>
+      <div class="quick-reply" onclick="sendQuickReply(this)">可爱猫眼</div>
+      <div class="quick-reply" onclick="sendQuickReply(this)">日系花朵</div>
+      <div class="quick-reply" onclick="sendQuickReply(this)">韩系极简</div>
+      <div class="quick-reply" onclick="sendQuickReply(this)">闪耀渐变</div>
+    </div>
+    <div class="chatbot-input-area">
+      <input type="text" class="chatbot-input" id="chatInput" placeholder="输入你的风格偏好..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button class="chatbot-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT IMAGE FLOATING PREVIEW (sits on top of chatbot overlay) -->
+<div class="chat-image-preview" id="chatImagePreview" onclick="closeChatImagePreview(event)">
+  <div class="chat-image-preview-box" onclick="event.stopPropagation()">
+    <button class="chat-image-preview-close" onclick="closeChatImagePreview()" aria-label="关闭">×</button>
+    <img class="chat-image-preview-img" id="chatImagePreviewImg" src="" alt="">
+    <div class="chat-image-preview-info">
+      <div class="chat-image-preview-title" id="chatImagePreviewTitle"></div>
+      <div class="chat-image-preview-desc" id="chatImagePreviewDesc"></div>
+      <div class="chat-image-preview-actions">
+        <button class="chat-image-preview-btn secondary" onclick="closeChatImagePreview()">关闭</button>
+        <button class="chat-image-preview-btn primary" id="chatImagePreviewGoBtn" onclick="goChatImagePreviewDetail()">查看详情</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE DETAIL OVERLAY -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-header">
+    <div class="detail-back" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>返回</span>
+    </div>
+  </div>
+  <div class="detail-content">
+    <div class="detail-image" id="detailImage"></div>
+    <div class="detail-info">
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-desc" id="detailDesc"></div>
+      <div class="detail-tags" id="detailTags"></div>
+    </div>
+    <div class="detail-shop-section">
+      <div class="detail-shop-title">美甲预约</div>
+      <div class="shop-cards">
+        <div class="shop-card">
+          <div class="shop-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="shop-card-info">
+            <div class="shop-card-name">喵喵美甲(旗舰店)</div>
+            <div class="shop-card-addr">朝阳区三里屯太古里北区</div>
+          </div>
+          <button class="shop-card-btn">预约</button>
+        </div>
+        <div class="shop-card">
+          <div class="shop-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="shop-card-info">
+            <div class="shop-card-name">喵喵美甲(国贸店)</div>
+            <div class="shop-card-addr">朝阳区国贸商城B1层</div>
+          </div>
+          <button class="shop-card-btn">预约</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-bottom-bar">
+    <button class="detail-btn detail-btn-outline" id="detailFavBtn" onclick="toggleDetailFav()">收藏</button>
+    <button class="detail-btn detail-btn-primary" onclick="closeDetail();switchTab('tryon')">AI试戴</button>
+    <button class="detail-btn detail-btn-secondary">线下预约</button>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const nailStyles = [
+  { id: 1, name: '樱花粉渐变', tag: '渐变', filter: 'gradient', gradient: 'ng-1', desc: '温柔粉色渐变，犹如春日樱花飘落指尖', tags: ['渐变', '春季', '温柔'], hot: true, heat: 92 },
+  { id: 2, name: '法式经典白', tag: '法式', filter: 'french', gradient: 'ng-2', desc: '永不过时的法式美甲，优雅大方', tags: ['法式', '经典', '百搭'], hot: false, heat: 85 },
+  { id: 3, name: '焦糖猫眼', tag: '猫眼', filter: 'cateye', gradient: 'ng-3', desc: '琥珀色猫眼石光泽，低调奢华', tags: ['猫眼', '秋冬', '质感'], hot: true, heat: 96 },
+  { id: 4, name: '深海蓝宝石', tag: '网红款', filter: 'hot', gradient: 'ng-4', desc: '深邃蓝色搭配闪片，如深海宝石般闪耀', tags: ['网红', '闪耀', '个性'], hot: true, heat: 90 },
+  { id: 5, name: '抹茶慕斯', tag: '季节限定', filter: 'season', gradient: 'ng-5', desc: '清新绿色调，春夏限定清凉感', tags: ['限定', '春夏', '清新'], hot: false, heat: 78 },
+  { id: 6, name: '紫晶星河', tag: '猫眼', filter: 'cateye', gradient: 'ng-6', desc: '神秘紫色猫眼，如同星河般闪烁', tags: ['猫眼', '神秘', '闪耀'], hot: false, heat: 82 },
+  { id: 7, name: '落日余晖', tag: '渐变', filter: 'gradient', gradient: 'ng-7', desc: '金橘色渐变，温暖如黄昏时分的天空', tags: ['渐变', '暖色', '活力'], hot: true, heat: 88 },
+  { id: 8, name: '橄榄复古绿', tag: '季节限定', filter: 'season', gradient: 'ng-8', desc: '复古橄榄绿，带有文艺气息', tags: ['限定', '复古', '文艺'], hot: false, heat: 74 },
+  { id: 9, name: '裸色温柔', tag: '法式', filter: 'french', gradient: 'ng-9', desc: '裸色系打底加法式微笑线，气质满分', tags: ['法式', '裸色', '气质'], hot: false, heat: 80 },
+  { id: 10, name: '薰衣草之梦', tag: '渐变', filter: 'gradient', gradient: 'ng-10', desc: '浅紫色柔和渐变，浪漫梦幻', tags: ['渐变', '浪漫', '梦幻'], hot: false, heat: 76 },
+  { id: 11, name: '酒红丝绒', tag: '网红款', filter: 'hot', gradient: 'ng-11', desc: '深红丝绒质感，秋冬必备显白利器', tags: ['网红', '显白', '秋冬'], hot: true, heat: 94 },
+  { id: 12, name: '蒂芙尼蓝', tag: '网红款', filter: 'hot', gradient: 'ng-12', desc: '经典蒂芙尼蓝，清爽显手白', tags: ['网红', '清爽', '显白'], hot: false, heat: 83 },
+  { id: 13, name: '奶油焦糖', tag: '季节限定', filter: 'season', gradient: 'ng-13', desc: '温柔奶油焦糖色，秋季限定暖意', tags: ['限定', '温柔', '秋季'], hot: false, heat: 72 },
+  { id: 14, name: '玫瑰金闪', tag: '网红款', filter: 'hot', gradient: 'ng-14', desc: '玫瑰金配亮片，闪耀全场', tags: ['网红', '闪耀', '派对'], hot: true, heat: 91 },
+  { id: 15, name: '冰川蓝调', tag: '渐变', filter: 'gradient', gradient: 'ng-15', desc: '冷调蓝色渐变，清冷高级感', tags: ['渐变', '冷调', '高级'], hot: false, heat: 79 },
+];
+
+let favorites = new Set();
+let handUploaded = false;
+let styleSelected = false;
+let currentDetailStyle = null;
+
+// ===== COVER =====
+function createParticles() {
+  const container = document.getElementById('coverParticles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = Math.random() * 100 + '%';
+    p.style.animationDelay = Math.random() * 3 + 's';
+    p.style.width = (3 + Math.random() * 4) + 'px';
+    p.style.height = p.style.width;
+    container.appendChild(p);
+  }
+}
+
+function enterApp() {
+  const cover = document.getElementById('coverPage');
+  cover.classList.add('hidden');
+  setTimeout(() => { cover.style.display = 'none'; }, 800);
+}
+
+function goToCover() {
+  const cover = document.getElementById('coverPage');
+  cover.style.display = 'flex';
+  cover.offsetHeight;
+  cover.classList.remove('hidden');
+}
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  if (tab === 'favorites') renderFavorites();
+}
+
+// ===== UPLOAD =====
+function switchUploadTab(tab) {
+  document.querySelectorAll('.upload-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.uptab === tab);
+  });
+  // Show/hide panels
+  const uploadSection = document.querySelector('.upload-section');
+  const favPanel = document.getElementById('favPickPanel');
+  if (tab === 'fav') {
+    if (uploadSection) uploadSection.style.display = 'none';
+    if (!favPanel) {
+      // Create fav panel
+      const panel = document.createElement('div');
+      panel.id = 'favPickPanel';
+      panel.className = 'fav-pick-panel';
+      panel.innerHTML = `
+        <div class="fav-pick-title">选择一个已收藏的款式</div>
+        <div class="fav-pick-grid">
+          <div class="fav-pick-item ng-1" onclick="selectFavForTryon(this, '樱花少女')"></div>
+          <div class="fav-pick-item ng-2" onclick="selectFavForTryon(this, '蜜桃汽水')"></div>
+          <div class="fav-pick-item ng-4" onclick="selectFavForTryon(this, '冰雪奇缘')"></div>
+          <div class="fav-pick-item ng-9" onclick="selectFavForTryon(this, '春日奶油')"></div>
+          <div class="fav-pick-item ng-6" onclick="selectFavForTryon(this, 'Y2K甜酷')"></div>
+          <div class="fav-pick-item ng-13" onclick="selectFavForTryon(this, '法式优雅')"></div>
+        </div>
+        <div class="fav-pick-hint" id="favPickHint">请点击选择一个款式</div>
+      `;
+      uploadSection.parentElement.insertBefore(panel, uploadSection.nextSibling);
+    } else {
+      favPanel.style.display = 'block';
+    }
+  } else {
+    if (uploadSection) uploadSection.style.display = '';
+    if (favPanel) favPanel.style.display = 'none';
+  }
+}
+
+function selectFavForTryon(el, name) {
+  document.querySelectorAll('.fav-pick-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('favPickHint').textContent = '已选择: ' + name;
+  document.getElementById('favPickHint').style.color = 'var(--accent-pink-dark)';
+  styleSelected = true;
+  updateTryonStatus();
+}
+
+function handleHandUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const area = document.getElementById('uploadHandArea');
+    area.classList.add('has-image');
+    area.innerHTML = '<img src="' + e.target.result + '" alt="hand">';
+    handUploaded = true;
+    updateTryonStatus();
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateTryonStatus() {
+  const dotHand = document.getElementById('statusHand');
+  const dotStyle = document.getElementById('statusStyle');
+  const textHand = document.getElementById('statusHandText');
+  const textStyle = document.getElementById('statusStyleText');
+  const btn = document.getElementById('btnTryon');
+
+  if (handUploaded) {
+    dotHand.classList.add('done');
+    textHand.textContent = '手图已上传';
+  }
+  if (styleSelected) {
+    dotStyle.classList.add('done');
+    textStyle.textContent = '款式已选择';
+  }
+  btn.disabled = !(handUploaded && styleSelected);
+}
+
+function startTryon() {
+  const loading = document.getElementById('tryonLoading');
+  loading.classList.add('show');
+  setTimeout(() => {
+    loading.classList.remove('show');
+    alert('AI试戴完成! (Demo展示)');
+  }, 2500);
+}
+
+// ===== RECOMMENDATIONS =====
+function renderRecommendations() {
+  const container = document.getElementById('recommendScroll');
+  const shuffled = [...nailStyles].sort(() => Math.random() - 0.5).slice(0, 6);
+  container.innerHTML = shuffled.map(s => `
+    <div class="recommend-card" onclick="openDetail(${s.id})">
+      <div class="recommend-card-img">
+        <div class="nail-gradient ${s.gradient}"></div>
+        ${s.hot ? '<div class="hot-badge">HOT</div>' : ''}
+      </div>
+      <div class="recommend-card-name">${s.name}</div>
+      <div class="recommend-card-tag">${s.tag}</div>
+    </div>
+  `).join('');
+}
+
+function refreshRecommend() {
+  renderRecommendations();
+}
+
+// ===== STYLES TAB =====
+function renderStyles(filter = 'all') {
+  const grid = document.getElementById('stylesGrid');
+  const filtered = filter === 'all' ? nailStyles : nailStyles.filter(s => s.filter === filter);
+  grid.innerHTML = filtered.map(s => `
+    <div class="style-card" onclick="openDetail(${s.id})">
+      <div class="style-card-img">
+        <div class="nail-gradient ${s.gradient}"></div>
+        <div class="style-card-fav ${favorites.has(s.id) ? 'faved' : ''}" onclick="event.stopPropagation();toggleFav(${s.id}, this)">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+      </div>
+      <div class="style-card-info">
+        <div class="style-card-name">${s.name}</div>
+        <div class="style-card-heat">
+          <div class="heat-bar"><div class="heat-bar-fill" style="width:${s.heat}%"></div></div>
+          <span>${s.heat}%</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderSeries() {
+  const container = document.getElementById('seriesScroll');
+  const series = nailStyles.slice(0, 6);
+  container.innerHTML = series.map(s => `
+    <div class="series-item" onclick="openDetail(${s.id})">
+      <div class="series-item-img">
+        <div class="nail-gradient ${s.gradient}"></div>
+      </div>
+      <div class="series-item-name">${s.name}</div>
+    </div>
+  `).join('');
+}
+
+// Filter tags
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('filter-tag')) {
+    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    renderStyles(e.target.dataset.filter);
+  }
+});
+
+// ===== FAVORITES =====
+function toggleFav(id, el) {
+  if (favorites.has(id)) {
+    favorites.delete(id);
+    if (el) el.classList.remove('faved');
+  } else {
+    favorites.add(id);
+    if (el) el.classList.add('faved');
+  }
+  updateFavCount();
+}
+
+function updateFavCount() {
+  document.getElementById('favCount').textContent = favorites.size + ' 款';
+}
+
+function renderFavorites() {
+  const container = document.getElementById('favoritesContent');
+  updateFavCount();
+  if (favorites.size === 0) {
+    container.innerHTML = `
+      <div class="favorites-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <p>还没有收藏哦，快去发现喜欢的款式吧</p>
+      </div>
+    `;
+    return;
+  }
+  const favItems = nailStyles.filter(s => favorites.has(s.id));
+  container.innerHTML = `
+    <div class="favorites-grid">
+      ${favItems.map(s => `
+        <div class="fav-item" onclick="openDetail(${s.id})">
+          <div class="fav-item-img">
+            <div class="nail-gradient ${s.gradient}"></div>
+          </div>
+          <div class="fav-item-name">${s.name}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ===== DETAIL =====
+function openDetail(id) {
+  const style = nailStyles.find(s => s.id === id);
+  if (!style) return;
+  currentDetailStyle = style;
+
+  document.getElementById('detailImage').innerHTML = `<div class="nail-gradient ${style.gradient}"></div>`;
+  document.getElementById('detailName').textContent = style.name;
+  document.getElementById('detailDesc').textContent = style.desc;
+  document.getElementById('detailTags').innerHTML = style.tags.map(t => `<div class="detail-tag">${t}</div>`).join('');
+  document.getElementById('detailFavBtn').textContent = favorites.has(style.id) ? '已收藏' : '收藏';
+  document.getElementById('detailOverlay').classList.add('show');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('show');
+  currentDetailStyle = null;
+  // Re-render styles grid to update fav states
+  const activeFilter = document.querySelector('.filter-tag.active');
+  if (activeFilter) renderStyles(activeFilter.dataset.filter);
+}
+
+function toggleDetailFav() {
+  if (!currentDetailStyle) return;
+  if (window.logBehavior) window.logBehavior('favorite', currentDetailStyle.styleId || currentDetailStyle.id);
+  toggleFav(currentDetailStyle.id);
+  document.getElementById('detailFavBtn').textContent = favorites.has(currentDetailStyle.id) ? '已收藏' : '收藏';
+}
+
+// ===== PROFILE =====
+function toggleChip(el) {
+  el.classList.toggle('selected');
+}
+
+function toggleConsent(el) {
+  const box = document.getElementById('consentBox');
+  box.classList.toggle('checked');
+}
+
+// ===== CHATBOT =====
+function openChatbot() {
+  document.getElementById('chatbotOverlay').classList.add('show');
+}
+
+function closeChatbot(event) {
+  if (event && event.target !== document.getElementById('chatbotOverlay')) return;
+  document.getElementById('chatbotOverlay').classList.remove('show');
+}
+
+function sendQuickReply(el) {
+  const text = el.textContent;
+  addMessage(text, 'user');
+  el.style.display = 'none';
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    const responses = {
+      '简约法式': '法式美甲永远不会出错呢~推荐你试试「法式经典白」和「裸色温柔」，简约大方又显气质!',
+      '可爱猫眼': '猫眼款式超有质感的~「焦糖猫眼」和「紫晶星河」都很适合你，光线下会有梦幻的光泽哦!',
+      '日系花朵': '日系花朵风格清新可爱~推荐搭配浅色底色，加上小花朵点缀，温柔又少女!',
+      '韩系极简': '韩系极简风格很高级~纯色搭配简约线条，推荐「裸色温柔」系列，低调有品味!',
+      '闪耀渐变': '渐变款式超美的~「樱花粉渐变」和「落日余晖」都是热门款，上手效果绝美!'
+    };
+    addMessage(responses[text] || '好的，我来为你推荐适合的款式~', 'bot');
+  }, 1500);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMessage(text, 'user');
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addMessage('收到~根据你的描述，我推荐你看看「焦糖猫眼」和「樱花粉渐变」，都是很受欢迎的款式! 你可以去款式页面浏览更多哦~', 'bot');
+  }, 1800);
+}
+
+function addMessage(text, type) {
+  const container = document.getElementById('chatMessages');
+  const msg = document.createElement('div');
+  msg.className = 'chat-msg ' + type;
+  msg.textContent = text;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const typing = document.createElement('div');
+  typing.className = 'typing-indicator';
+  typing.id = 'typingIndicator';
+  typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  createParticles();
+  renderRecommendations();
+  renderStyles();
+  renderSeries();
+});
+</script>
+
+<!-- REAL_BACKEND_INTEGRATION -->
+<script>
+(function() {
+  const apiState = {
+    handImage: '',
+    selectedStyleId: '',
+    lastTryonResultPath: '',
+    lastTryonResultUrl: '',
+    storeItems: [],
+    lastRecommendText: '',
+    recommendOffset: 0,
+    userProfile: {}
+  };
+
+  function asStyle(item) {
+    return {
+      id: item.serial_no || Number(String(item.style_id || '').replace('style_', '')),
+      styleId: item.style_id,
+      name: item.primary_style || ('款式' + (item.serial_no || '')),
+      tag: (item.tags_text && item.tags_text !== item.primary_style) ? item.tags_text : '',
+      desc: item.ai_reason || item.reasons?.join('；') || '根据当前偏好匹配的店内款式',
+      reason: item.ai_reason || item.reasons?.slice(0, 2).join('；') || '综合偏好、手型和热度推荐',
+      score: item.score || 0,
+      scoreDetail: item.score_detail || {},
+      imageUrl: item.image_url,
+      heat: Math.min(99, Math.max(60, Math.round((item.score || 40) + 45))),
+      tags: item.tags_text ? String(item.tags_text).split(/[,+，、]/).filter(Boolean) : [item.primary_style].filter(Boolean),
+      hot: (item.score || 0) >= 40,
+      raw: item
+    };
+  }
+
+
+  function ensureTryonResultModal() {
+    let modal = document.getElementById('realTryonResultModal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'realTryonResultModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px;';
+    modal.innerHTML = `
+      <div style="width:min(420px,100%);max-height:92vh;background:#fff;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid rgba(0,0,0,.06);">
+          <strong style="font-size:16px;color:#4A3728;">AI试戴结果</strong>
+          <button id="realTryonCloseBtn" style="border:0;background:#FFB5C5;color:white;border-radius:999px;padding:7px 14px;font-weight:600;">关闭</button>
+        </div>
+        <div style="padding:12px;background:#FFFAF5;overflow:auto;">
+          <img id="realTryonResultImg" alt="AI试戴结果" style="width:100%;display:block;border-radius:14px;">
+          <div style="display:none;"></div>
+          <div id="sceneTryonStatus" style="margin-top:8px;font-size:12px;color:#9b8069;text-align:center;"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) modal.style.display = 'none';
+    });
+    document.getElementById('realTryonCloseBtn').onclick = () => {
+      modal.style.display = 'none';
+    };
+    return modal;
+  }
+
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[ch]));
+  }
+
+  function sourceLabel(source) {
+    return source === 'store' ? '\u5e97\u5185\u53ef\u9884\u7ea6' : '\u5168\u7f51\u7075\u611f';
+  }
+
+
+  function selectedChipTexts(sectionTitle) {
+    const sections = Array.from(document.querySelectorAll('.profile-section'));
+    const section = sections.find(sec => {
+      const title = sec.querySelector('.profile-section-title');
+      return title && title.textContent.includes(sectionTitle);
+    });
+    if (!section) return [];
+    return Array.from(section.querySelectorAll('.chip.selected'))
+      .map(el => el.textContent.trim())
+      .filter(Boolean);
+  }
+
+  function collectUserProfile() {
+    const nailShapes = selectedChipTexts('甲型');
+    const handTypes = selectedChipTexts('手型');
+    const stylePrefs = selectedChipTexts('风格喜好');
+    const consent = !!document.getElementById('consentBox')?.classList.contains('checked');
+    const profile = {
+      nail_shape: nailShapes[0] || '',
+      nail_shapes: nailShapes,
+      hand_type: handTypes[0] || '',
+      hand_types: handTypes,
+      style_tags: stylePrefs,
+      selected_tags: stylePrefs,
+      consent
+    };
+    profile.summary = [
+      nailShapes.length ? `甲型偏好：${nailShapes.join('、')}` : '',
+      handTypes.length ? `手型：${handTypes.join('、')}` : '',
+      stylePrefs.length ? `风格偏好：${stylePrefs.join('、')}` : ''
+    ].filter(Boolean).join('；');
+    apiState.userProfile = profile;
+    return profile;
+  }
+
+  function buildCombinedPreferenceText(text) {
+    const profile = collectUserProfile();
+    return [profile.summary, text || ''].filter(Boolean).join('；补充需求：');
+  }
+
+  function inferColorFromText(text) {
+    const source = String(text || '');
+    const matches = source.match(/裸粉|奶茶|香槟|粉色|白色|黑色|红色|绿色|蓝色|紫色|银色|金色|裸色|低饱和/g);
+    return matches ? Array.from(new Set(matches)).join('、') : '低饱和显白色、裸粉、奶茶';
+  }
+
+  function inferStyleFromProfileAndText(text) {
+    const profile = collectUserProfile();
+    const merged = Array.from(new Set([...(profile.style_tags || []), ...String(text || '').match(/猫眼|法式|日系|韩系|欧美|新中式|渐变|腮红|珍珠|细闪|亮片|金线/g) || []]));
+    return merged.length ? merged.join('、') : '通勤、显白、精致';
+  }
+
+  function installProfileHooks() {
+    const originalToggleChip = window.toggleChip;
+    window.toggleChip = function(el) {
+      if (typeof originalToggleChip === 'function') {
+        originalToggleChip(el);
+      } else if (el) {
+        el.classList.toggle('selected');
+      }
+      collectUserProfile();
+    };
+    const originalToggleConsent = window.toggleConsent;
+    window.toggleConsent = function(el) {
+      if (typeof originalToggleConsent === 'function') {
+        originalToggleConsent(el);
+      } else {
+        document.getElementById('consentBox')?.classList.toggle('checked');
+      }
+      collectUserProfile();
+    };
+    collectUserProfile();
+  }
+
+  function addRecommendationCards(items) {
+    const container = document.getElementById('chatMessages');
+    if (!container || !Array.isArray(items) || !items.length) return;
+    const grid = document.createElement('div');
+    grid.className = 'chat-msg bot chat-recommend-grid';
+    grid.innerHTML = items.slice(0, 4).map((item, index) => {
+      const img = item.image_url || item.image || item.imageUrl || item.preview || '';
+      const name = escapeHtml(item.name || (`\u63a8\u8350\u6b3e\u5f0f ${index + 1}`));
+      const reason = escapeHtml(item.reason || '\u8fd9\u6b3e\u548c\u4f60\u7684\u9700\u6c42\u6bd4\u8f83\u8d34\u5408\uff0c\u9002\u5408\u5148\u8bd5\u6234\u770b\u770b\u4e0a\u624b\u6548\u679c\u3002');
+      return `
+        <button class="chat-recommend-card" type="button" onclick="selectAiTop3Item(${index})">
+          <img src="${img}" alt="${name}" onerror="this.style.visibility='hidden'">
+          <span>
+            <strong>${name}</strong>
+            <p>${reason}</p>
+          </span>
+        </button>
+      `;
+    }).join('');
+    container.appendChild(grid);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function storeCardFromStyle(style) {
+    return {
+      source: 'store',
+      source_label: '\u5e97\u5185\u6b3e\u5f0f',
+      style_id: style.styleId,
+      name: style.name,
+      image_url: style.imageUrl,
+      tags: style.tags || [],
+      reason: style.reason || style.desc || '\u8fd9\u6b3e\u548c\u4f60\u7684\u504f\u597d\u5339\u914d\uff0c\u53ef\u4ee5\u76f4\u63a5\u9884\u7ea6\u6216\u8bd5\u6234\u3002',
+      reference_image_path: '',
+      store_style: style
+    };
+  }
+
+  async function generateTrendItem(text) {
+    const data = await postJSON('/api/ai/generate_trend_style', {
+      description: text || apiState.lastRecommendText || '\u663e\u767d\u901a\u52e4\u65e5\u5e38\u7f8e\u7532'
+    });
+    return data.item;
+  }
+
+  async function generateDesignItems(text) {
+    const profile = collectUserProfile();
+    const combinedText = buildCombinedPreferenceText(text);
+    const data = await postJSON('/api/ai/generate_style_variants', {
+      description: combinedText,
+      color: inferColorFromText(combinedText),
+      style: inferStyleFromProfileAndText(combinedText),
+      nail_shape: profile.nail_shape || '短方圆',
+      length: profile.nail_shape || '短到中等',
+      mood: inferStyleFromProfileAndText(combinedText),
+      hand_feature: profile.hand_type || '自然手型',
+      count: 2
+    });
+    return (data.variants || []).slice(0, 2).map(item => Object.assign({}, item, {
+      source: 'variant_generated',
+      source_label: 'AI生成款'
+    }));
+  }
+
+  async function buildStoreFirstChatItems(text) {
+    const storeCards = (apiState.storeItems || []).slice(0, 2).map(storeCardFromStyle);
+    let generatedCards = [];
+    try {
+      generatedCards = await generateDesignItems(text);
+    } catch (err) {
+      console.warn('variant generation failed', err);
+    }
+    apiState.aiTop3Items = storeCards.concat(generatedCards).slice(0, 4);
+    return apiState.aiTop3Items;
+  }
+
+
+  function showTryonResult(url, resultPath) {
+    apiState.lastTryonResultUrl = url || '';
+    apiState.lastTryonResultPath = resultPath || apiState.lastTryonResultPath || '';
+    const modal = ensureTryonResultModal();
+    document.getElementById('realTryonResultImg').src = url;
+    const status = document.getElementById('sceneTryonStatus');
+    if (status) status.textContent = '';
+    modal.style.display = 'flex';
+  }
+
+  window.generateSceneTryon = async function(sceneType) {
+    const status = document.getElementById('sceneTryonStatus');
+    if (!apiState.lastTryonResultPath) {
+      if (status) status.textContent = '\u8bf7\u5148\u5b8c\u6210\u4e00\u6b21AI\u8bd5\u6234';
+      return;
+    }
+    if (status) status.textContent = sceneType === 'coffee' ? '\u6b63\u5728\u751f\u6210\u62ff\u5496\u5561\u573a\u666f...' : '\u6b63\u5728\u751f\u6210\u62ff\u624b\u673a\u573a\u666f...';
+    try {
+      const data = await postJSON('/api/tryon/scene', {
+        source_image: apiState.lastTryonResultPath,
+        scene_type: sceneType,
+        style_id: apiState.selectedStyleId || ''
+      });
+      apiState.lastTryonResultPath = data.result_path;
+      apiState.lastTryonResultUrl = data.result_url;
+      document.getElementById('realTryonResultImg').src = data.result_url;
+      if (status) status.textContent = '\u573a\u666f\u56fe\u5df2\u751f\u6210\uff0c\u53ef\u4ee5\u7ee7\u7eed\u5207\u6362\u573a\u666f';
+    } catch (err) {
+      console.error(err);
+      if (status) status.textContent = '\u573a\u666f\u751f\u6210\u5931\u8d25\uff1a' + err.message;
+    }
+  };
+
+  function renderUploadedHandPreview(dataUrl) {
+    const area = document.getElementById('uploadHandArea');
+    if (!area) return;
+    area.classList.add('has-image');
+    area.innerHTML = `
+      <img src="${dataUrl}" alt="hand">
+      <button type="button" class="reupload-btn" id="reuploadHandBtn">重新上传手图</button>
+      <input type="file" id="handInput" class="hidden-input" accept="image/*">
+    `;
+    const input = document.getElementById('handInput');
+    const btn = document.getElementById('reuploadHandBtn');
+    input.onchange = window.handleHandUpload;
+    area.onclick = (event) => {
+      if (event.target === input) return;
+      input.click();
+    };
+    if (btn) {
+      btn.onclick = (event) => {
+        event.stopPropagation();
+        input.click();
+      };
+    }
+  }
+
+  function selectStoreStyle(style) {
+    if (!style) return;
+    currentDetailStyle = style;
+    apiState.selectedStyleId = style.styleId;
+    styleSelected = true;
+    updateTryonStatus();
+  }
+
+
+  window.logBehavior = function logBehavior(eventType, styleId, extra = {}) {
+    const payload = Object.assign({
+      event_type: eventType,
+      hand_image: apiState.handImage || '',
+      style_id: styleId || apiState.selectedStyleId || ''
+    }, extra);
+    fetch(apiUrl('/api/event'), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    }).catch(err => console.warn('event log failed', err));
+  };
+
+  function apiUrl(path) {
+    return new URL(path, window.location.origin).toString();
+  }
+
+  async function postJSON(url, payload) {
+    const target = apiUrl(url);
+    const res = await fetch(target, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (err) {
+      throw new Error(`接口没有返回 JSON：${target}，状态 ${res.status}，返回开头：${text.slice(0, 80)}`);
+    }
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    return data;
+  }
+
+  async function initBackendDemo() {
+    try {
+      const options = await fetch(apiUrl('/api/options')).then(r => r.json());
+      if (options.hands && options.hands.length) {
+        apiState.handImage = options.hands[0].path;
+      }
+      await loadStoreRecommendations('');
+    } catch (err) {
+      console.warn('backend init failed', err);
+    }
+  }
+
+  async function loadStoreRecommendations(description, options = {}) {
+    const text = typeof description === 'string' ? description : (apiState.lastRecommendText || '');
+    const profile = collectUserProfile();
+    const combinedText = buildCombinedPreferenceText(text);
+    if (options.reset) {
+      apiState.recommendOffset = 0;
+    }
+    apiState.lastRecommendText = text;
+    const data = await postJSON('/api/recommend', {
+      hand_image: apiState.handImage,
+      hand_type: profile.hand_type || '',
+      nail_shape: profile.nail_shape || '',
+      description: combinedText || '',
+      selected_tags: profile.selected_tags || [],
+      top_k: 25,
+      batch_size: options.batch_size || 25,
+      offset: apiState.recommendOffset
+    });
+    apiState.storeItems = (data.recommendations || []).map(asStyle);
+    renderRecommendations();
+    renderStyles();
+    return data;
+  }
+
+
+  function renderAiTop3(items) {
+    const panel = document.getElementById('aiTop3Panel');
+    if (panel) panel.style.display = 'none';
+  }
+
+
+  async function loadAiTop3(description) {
+    const profile = collectUserProfile();
+    const data = await postJSON('/api/ai/recommend_top3', {
+      hand_image: apiState.handImage,
+      hand_type: profile.hand_type || '',
+      nail_shape: profile.nail_shape || '',
+      description: buildCombinedPreferenceText(description || ''),
+      selected_tags: profile.selected_tags || []
+    });
+    apiState.aiTop3Items = data.items || [];
+    renderAiTop3(apiState.aiTop3Items);
+    return apiState.aiTop3Items;
+  }
+
+  window.loadAiTop3FromInput = async function() {
+    const text = document.getElementById('chatInput')?.value || '';
+    await loadAiTop3(text);
+  };
+
+  window.selectAiTop3Item = function(index) {
+    const item = apiState.aiTop3Items?.[index];
+    if (!item) return;
+    const style = item.store_style || {
+      id: 900 + index,
+      styleId: item.style_id,
+      name: item.name,
+      tag: item.source_label,
+      desc: item.reason,
+      reason: item.reason,
+      score: item.score || 0,
+      scoreDetail: item.score_detail || {},
+      imageUrl: item.image_url,
+      tags: item.tags || [item.source_label],
+      hot: true,
+      raw: item
+    };
+    currentDetailStyle = style;
+    apiState.selectedStyleId = item.style_id;
+    apiState.selectedReferenceImage = item.source === 'store' ? '' : (item.reference_image_path || '');
+    styleSelected = true;
+    updateTryonStatus();
+    logBehavior(item.source === 'store' ? 'ai_store_click' : 'ai_web_inspiration_click', item.style_id);
+    // 在聊天框上方弹出悬浮预览，避免被 chatbot-overlay (z-index 5000) 遮挡
+    openChatImagePreview({
+      img: style.imageUrl || item.image_url,
+      title: style.name,
+      desc: style.reason || item.reason || '',
+      style: style
+    });
+  };
+
+  window.openChatImagePreview = function(opts) {
+    const overlay = document.getElementById('chatImagePreview');
+    if (!overlay) return;
+    document.getElementById('chatImagePreviewImg').src = opts.img || '';
+    document.getElementById('chatImagePreviewImg').alt = opts.title || '';
+    document.getElementById('chatImagePreviewTitle').textContent = opts.title || '';
+    document.getElementById('chatImagePreviewDesc').textContent = opts.desc || '';
+    overlay.dataset.styleRef = '1';
+    window._chatPreviewStyle = opts.style || null;
+    overlay.classList.add('show');
+  };
+
+  window.closeChatImagePreview = function(event) {
+    if (event && event.target.id !== 'chatImagePreview') return;
+    const overlay = document.getElementById('chatImagePreview');
+    if (overlay) overlay.classList.remove('show');
+  };
+
+  window.goChatImagePreviewDetail = function() {
+    const style = window._chatPreviewStyle;
+    closeChatImagePreview();
+    if (!style) return;
+    // 关闭聊天弹窗，再打开详情页（详情 z-index 4000，不能在聊天打开时显示）
+    const chatOverlay = document.getElementById('chatbotOverlay');
+    if (chatOverlay) chatOverlay.classList.remove('show');
+    currentDetailStyle = style;
+    document.getElementById('detailImage').innerHTML =
+      `<img src="${style.imageUrl || ''}" alt="${style.name || ''}" style="width:100%;height:100%;object-fit:cover;">`;
+    document.getElementById('detailName').textContent = style.name || '';
+    document.getElementById('detailDesc').textContent = style.reason || style.desc || '';
+    document.getElementById('detailTags').innerHTML = (style.tags || []).map(t => `<div class="detail-tag">${t || ''}</div>`).join('');
+    document.getElementById('detailFavBtn').textContent = favorites.has(style.id) ? '\u5df2\u6536\u85cf' : '\u6536\u85cf';
+    document.getElementById('detailOverlay').classList.add('show');
+  };
+
+
+  window.renderRecommendations = function() {
+    const container = document.getElementById('recommendScroll');
+    if (!container) return;
+    const items = apiState.storeItems.length ? apiState.storeItems.slice(0, 6) : [];
+    container.innerHTML = items.map(s => `
+      <div class="recommend-card" onclick="openDetail(${s.id})">
+        <div class="recommend-card-img">
+          <img src="${s.imageUrl}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;">
+          ${s.hot ? '<div class="hot-badge">HOT</div>' : ''}
+        </div>
+        <div class="recommend-card-name">${s.name}</div>
+        ${s.tag && s.tag !== s.name ? `<div class="recommend-card-tag">${s.tag}</div>` : ''}
+      </div>
+    `).join('');
+  };
+
+
+  window.refreshRecommend = async function() {
+    const trigger = document.querySelector('[onclick="window.refreshRecommend()"]');
+    if (trigger) trigger.textContent = '\u6362\u4e00\u6279...';
+    try {
+      apiState.recommendOffset = (apiState.recommendOffset || 0) + 3;
+      await loadStoreRecommendations(apiState.lastRecommendText || '', { reset: false });
+    } catch (err) {
+      console.warn('refresh recommend failed', err);
+    } finally {
+      if (trigger) trigger.textContent = '\u6362\u4e00\u6279';
+    }
+  };
+  try { refreshRecommend = window.refreshRecommend; } catch (err) {}
+
+  function favoriteCatalog() {
+    const map = new Map();
+    (apiState.storeItems || []).forEach(s => map.set(Number(s.id), s));
+    (apiState.aiTop3Items || []).forEach((item, index) => {
+      const id = Number((item.store_style && item.store_style.id) || (900 + index));
+      map.set(id, item.store_style || {
+        id,
+        styleId: item.style_id,
+        name: item.name,
+        tag: item.source_label || '',
+        desc: item.reason || '',
+        reason: item.reason || '',
+        imageUrl: item.image_url,
+        tags: item.tags || [],
+        raw: item
+      });
+    });
+    return map;
+  }
+
+  window.renderStyles = function() {
+    const grid = document.getElementById('stylesGrid');
+    if (!grid) return;
+    const items = apiState.storeItems.length ? apiState.storeItems : [];
+    grid.innerHTML = items.map(s => `
+      <div class="style-card" onclick="openDetail(${s.id})">
+        <div class="style-card-img">
+          <img src="${s.imageUrl}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;">
+          <div class="style-card-fav ${favorites.has(s.id) ? 'faved' : ''}" onclick="event.stopPropagation();toggleFav(${s.id}, this)">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="style-card-info">
+          <div class="style-card-name">${s.name}</div>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  const originalToggleFav = window.toggleFav || toggleFav;
+  window.toggleFav = function(id, el) {
+    originalToggleFav(id, el);
+    renderFavorites();
+    renderStyles();
+  };
+  try { toggleFav = window.toggleFav; } catch (err) {}
+
+  window.renderFavorites = function() {
+    const container = document.getElementById('favoritesContent');
+    if (!container) return;
+    updateFavCount();
+    if (favorites.size === 0) {
+      container.innerHTML = `
+        <div class="favorites-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <p>还没有收藏哦，快去发现喜欢的款式吧</p>
+        </div>
+      `;
+      return;
+    }
+    const catalog = favoriteCatalog();
+    const favItems = Array.from(favorites).map(id => catalog.get(Number(id))).filter(Boolean);
+    container.innerHTML = `
+      <div class="favorites-grid">
+        ${favItems.map(s => `
+          <div class="fav-item" onclick="openDetail(${s.id})">
+            <div class="fav-item-img">
+              <img src="${s.imageUrl}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fav-item-name">${s.name}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+  try { renderFavorites = window.renderFavorites; } catch (err) {}
+
+  window.renderSeries = function() {
+    const container = document.getElementById('seriesScroll');
+    if (!container) return;
+    const items = apiState.storeItems.slice(0, 6);
+    container.innerHTML = items.map(s => `
+      <div class="series-item" onclick="openDetail(${s.id})">
+        <div class="series-item-img">
+          <img src="${s.imageUrl}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="series-item-name">${s.name}</div>
+      </div>
+    `).join('');
+  };
+
+  window.openDetail = function(id) {
+    const style = apiState.storeItems.find(s => Number(s.id) === Number(id));
+    if (!style) return;
+    selectStoreStyle(style);
+    apiState.selectedReferenceImage = '';
+    logBehavior('style_click', style.styleId);
+
+    document.getElementById('detailImage').innerHTML =
+      `<img src="${style.imageUrl}" alt="${style.name}" style="width:100%;height:100%;object-fit:cover;">`;
+    document.getElementById('detailName').textContent = style.name;
+    document.getElementById('detailDesc').textContent = style.reason || style.desc || '';
+    document.getElementById('detailTags').innerHTML = style.tags.map(t => `<div class="detail-tag">${t}</div>`).join('');
+    document.getElementById('detailFavBtn').textContent = favorites.has(style.id) ? '\u5df2\u6536\u85cf' : '\u6536\u85cf';
+    document.getElementById('detailOverlay').classList.add('show');
+  };
+
+
+  window.handleHandUpload = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    fetch(apiUrl('/api/upload_hand'), {method: 'POST', body: form})
+      .then(r => r.json())
+      .then(data => { apiState.handImage = data.dataset_hand_path || data.path; })
+      .catch(err => console.warn('upload backend failed', err));
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      apiState.uploadedHandPreviewDataUrl = e.target.result;
+      renderUploadedHandPreview(e.target.result);
+      handUploaded = true;
+      updateTryonStatus();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.startTryon = async function() {
+    const loading = document.getElementById('tryonLoading');
+    loading.classList.add('show');
+    try {
+      if (!apiState.handImage) throw new Error('请先上传或选择手图');
+      if (!apiState.selectedStyleId && currentDetailStyle?.styleId) {
+        apiState.selectedStyleId = currentDetailStyle.styleId;
+      }
+      if ((!apiState.selectedStyleId || apiState.selectedStyleId === 'undefined') && apiState.storeItems[0]) {
+        apiState.selectedStyleId = apiState.storeItems[0].styleId;
+      }
+      if (!apiState.selectedStyleId || apiState.selectedStyleId === 'undefined') {
+        apiState.selectedStyleId = 'style_01';
+      }
+      const result = await postJSON('/api/tryon', {
+        hand_image: apiState.handImage,
+        style_id: apiState.selectedStyleId,
+        reference_image: apiState.selectedReferenceImage || '',
+        prefer_cached: true,
+        cache_only: !apiState.selectedReferenceImage,
+        enable_ai: true
+      });
+      loading.classList.remove('show');
+      logBehavior(result.cached ? 'try_on_cached_frontend' : 'try_on_generated_frontend', apiState.selectedStyleId, {
+        result_path: result.final_result,
+        quality_score: result.quality?.score
+      });
+      showTryonResult(result.final_url, result.final_result);
+    } catch (err) {
+      loading.classList.remove('show');
+      alert('AI试戴失败：' + err.message);
+    }
+  };
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('chatInput');
+    const text = (input?.value || '').trim();
+    if (!text) return;
+    input.value = '';
+    addMessage(text, 'user');
+    showTyping();
+    try {
+      await loadStoreRecommendations(text, { reset: true });
+      const items = await buildStoreFirstChatItems(text);
+      removeTyping();
+      addMessage('根据你的需求，我挑了几款更适合你的美甲，可以先点开看看上手效果。', 'bot');
+      addRecommendationCards(items || []);
+    } catch (err) {
+      console.error(err);
+      removeTyping();
+      addMessage('\u63a8\u8350\u670d\u52a1\u6682\u65f6\u4e0d\u7a33\u5b9a\uff0c\u4f60\u53ef\u4ee5\u6362\u4e2a\u98ce\u683c\u8bcd\u518d\u8bd5\u4e00\u6b21\u3002', 'bot');
+    }
+  };
+
+
+
+  window.sendQuickReply = async function(el) {
+    const text = (el?.textContent || '').trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    if (el) el.style.display = 'none';
+    showTyping();
+    try {
+      await loadStoreRecommendations(text, { reset: true });
+      const items = await buildStoreFirstChatItems(text);
+      removeTyping();
+      addMessage(`按「${text}」重新挑好了，这几款风格会更贴近你的偏好。`, 'bot');
+      addRecommendationCards(items);
+    } catch (err) {
+      console.error(err);
+      removeTyping();
+      addMessage('\u63a8\u8350\u670d\u52a1\u6682\u65f6\u4e0d\u7a33\u5b9a\uff0c\u4f60\u53ef\u4ee5\u6362\u4e2a\u98ce\u683c\u8bcd\u518d\u8bd5\u4e00\u6b21\u3002', 'bot');
+    }
+  };
+
+
+  window.generateTrendStyleFromChat = async function() {
+    const input = document.getElementById('chatInput');
+    const text = (input?.value || apiState.lastRecommendText || '显白通勤日常美甲').trim();
+    addMessage(`\u6b63\u5728\u7ed3\u5408\u8d8b\u52bf\u751f\u6210\u300c${text}\u300d\u7075\u611f\u6b3e...`, 'bot');
+    showTyping();
+    try {
+      const item = await generateTrendItem(text);
+      removeTyping();
+      apiState.aiTop3Items = [item];
+      addMessage('\u751f\u6210\u597d\u4e86\uff0c\u8fd9\u5f20\u662f\u6839\u636e\u8d8b\u52bf\u548c\u4f60\u7684\u504f\u597d\u751f\u6210\u7684\u7075\u611f\u6b3e\uff0c\u53ef\u4ee5\u70b9\u56fe\u7247\u8bd5\u6234\u3002', 'bot');
+      addRecommendationCards(apiState.aiTop3Items);
+    } catch (err) {
+      console.error(err);
+      removeTyping();
+      addMessage('\u8d8b\u52bf\u7075\u611f\u751f\u6210\u5931\u8d25\uff1a' + err.message, 'bot');
+    }
+  };
+
+
+  window.generateStyleVariantsFromChat = async function() {
+    const baseText = (document.getElementById('chatInput')?.value || apiState.lastRecommendText || '').trim();
+    const color = prompt('\u989c\u8272\u504f\u597d\uff08\u4f8b\uff1a\u88f8\u7c89\u3001\u5976\u8336\u3001\u9ed1\u8272\u3001\u9999\u69df\u91d1\uff09', '\u88f8\u7c89\u3001\u5976\u8336');
+    if (color === null) return;
+    const style = prompt('\u6b3e\u5f0f\u5143\u7d20\uff08\u4f8b\uff1a\u732b\u773c\u3001\u6cd5\u5f0f\u3001\u7ec6\u95ea\u3001\u6e10\u53d8\uff09', '\u732b\u773c\u3001\u7ec6\u95ea');
+    if (style === null) return;
+    const nailShape = prompt('\u7532\u578b/\u957f\u5ea6\uff08\u4f8b\uff1a\u77ed\u65b9\u5706\u3001\u674f\u4ec1\u3001\u4e2d\u957f\uff09', '\u77ed\u65b9\u5706');
+    if (nailShape === null) return;
+    const mood = prompt('\u98ce\u683c\u573a\u666f\uff08\u4f8b\uff1a\u901a\u52e4\u3001\u53ef\u7231\u3001\u751c\u9177\u3001\u65e5\u7cfb\uff09', '\u901a\u52e4\u3001\u663e\u767d\u3001\u7cbe\u81f4');
+    if (mood === null) return;
+    const handFeature = prompt('\u624b\u90e8\u7279\u5f81\uff08\u4f8b\uff1a\u624b\u6307\u504f\u77ed\u3001\u8089\u8089\u624b\u3001\u80a4\u8272\u504f\u9ec4\uff09', '\u81ea\u7136\u624b\u578b');
+    if (handFeature === null) return;
+
+    addMessage('\u6b63\u5728\u6839\u636e\u7ed3\u6784\u5316\u504f\u597d\u751f\u62103\u5f20\u7f8e\u7532\u65b9\u6848...', 'bot');
+    showTyping();
+    try {
+      const data = await postJSON('/api/ai/generate_style_variants', {
+        description: baseText,
+        color,
+        style,
+        nail_shape: nailShape,
+        length: nailShape,
+        mood,
+        hand_feature: handFeature,
+        count: 3
+      });
+      removeTyping();
+      apiState.aiTop3Items = data.variants || [];
+      addMessage('\u5df2\u751f\u62103\u5f20\u5019\u9009\u65b9\u6848\uff1a\u4e00\u5f20\u7a33\u59a5\u65e5\u5e38\u3001\u4e00\u5f20\u8d8b\u52bf\u4eae\u70b9\u3001\u4e00\u5f20\u7cbe\u81f4\u53d8\u5316\u3002\u70b9\u51fb\u56fe\u7247\u53ef\u4ee5\u9009\u4e2d\u8bd5\u6234\u3002', 'bot');
+      addRecommendationCards(apiState.aiTop3Items);
+    } catch (err) {
+      console.error(err);
+      removeTyping();
+      addMessage('\u751f\u62103\u5f20\u65b9\u6848\u5931\u8d25\uff1a' + err.message, 'bot');
+    }
+  };
+
+
+  function renderUploadArea(kind) {
+    const area = document.getElementById('uploadHandArea');
+    if (!area) return;
+    area.classList.remove('has-image');
+    const isStyle = kind === 'style';
+    area.innerHTML = `
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      </div>
+      <div class="upload-text">${isStyle ? '点击上传美甲款式图片' : '点击上传手部照片'}</div>
+      <div class="upload-format">${isStyle ? '用于作为 AI 试戴参考款式' : '支持 JPG / PNG 格式'}</div>
+      <input type="file" id="${isStyle ? 'styleInput' : 'handInput'}" class="hidden-input" accept="image/*">
+    `;
+    const input = document.getElementById(isStyle ? 'styleInput' : 'handInput');
+    input.onchange = isStyle ? window.handleStyleUpload : window.handleHandUpload;
+    area.onclick = () => input.click();
+  }
+
+  function renderUploadedStylePreview(dataUrl, name) {
+    const area = document.getElementById('uploadHandArea');
+    if (!area) return;
+    area.classList.add('has-image');
+    area.innerHTML = `
+      <img src="${dataUrl}" alt="style">
+      <div class="upload-selected-caption">已选择款式：${name || '上传款式'}</div>
+      <button type="button" class="reupload-btn" id="reuploadStyleBtn">重新上传款式</button>
+      <input type="file" id="styleInput" class="hidden-input" accept="image/*">
+    `;
+    const input = document.getElementById('styleInput');
+    const btn = document.getElementById('reuploadStyleBtn');
+    input.onchange = window.handleStyleUpload;
+    area.onclick = (event) => {
+      if (event.target === input) return;
+      input.click();
+    };
+    if (btn) {
+      btn.onclick = (event) => {
+        event.stopPropagation();
+        input.click();
+      };
+    }
+  }
+
+  function selectFavoriteStyleForTryon(style, el) {
+    if (!style) return;
+    document.querySelectorAll('.fav-pick-card').forEach(node => node.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    currentDetailStyle = style;
+    apiState.selectedStyleId = style.styleId || style.style_id || `style_${String(style.id || 1).padStart(2, '0')}`;
+    apiState.selectedReferenceImage = style.referenceImage || style.reference_image || style.reference_image_path || '';
+    styleSelected = true;
+    const hint = document.getElementById('favPickHint');
+    if (hint) {
+      hint.textContent = `已选择：${style.name || '收藏款式'}`;
+      hint.style.color = 'var(--accent-pink-dark)';
+    }
+    updateTryonStatus();
+  }
+
+  function renderFavoritePickPanel() {
+    const uploadSection = document.querySelector('.upload-section');
+    if (!uploadSection) return null;
+    let panel = document.getElementById('favPickPanel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'favPickPanel';
+      panel.className = 'fav-pick-panel';
+      uploadSection.parentElement.insertBefore(panel, uploadSection.nextSibling);
+    }
+    const catalog = favoriteCatalog();
+    const favItems = Array.from(favorites).map(id => catalog.get(Number(id))).filter(Boolean);
+    if (!favItems.length) {
+      panel.innerHTML = `<div class="fav-pick-hint" id="favPickHint">还没有收藏款式，先去首页或款式页收藏后再回来选择。</div>`;
+      return panel;
+    }
+    panel.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        ${favItems.map((s, idx) => `
+          <div class="fav-pick-card" data-fav-index="${idx}" style="border:1px solid #f7c8d8;border-radius:14px;padding:8px;background:#fff;cursor:pointer;">
+            <img src="${s.imageUrl}" alt="${s.name}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;display:block;">
+            <div style="font-size:13px;font-weight:700;margin-top:6px;color:#4a3026;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name || '收藏款式'}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="fav-pick-hint" id="favPickHint">请选择一个收藏款式用于试戴</div>
+    `;
+    panel.querySelectorAll('.fav-pick-card').forEach(card => {
+      const idx = Number(card.dataset.favIndex);
+      card.onclick = () => selectFavoriteStyleForTryon(favItems[idx], card);
+    });
+    return panel;
+  }
+
+  window.switchUploadTab = function(tab) {
+    document.querySelectorAll('.upload-tab').forEach(el => {
+      el.classList.toggle('active', el.dataset.uptab === tab);
+    });
+    const uploadSection = document.querySelector('.upload-section');
+    const panel = document.getElementById('favPickPanel');
+    if (tab === 'fav') {
+      if (uploadSection) uploadSection.style.display = 'none';
+      const favPanel = renderFavoritePickPanel();
+      if (favPanel) favPanel.style.display = 'block';
+      return;
+    }
+    if (panel) panel.style.display = 'none';
+    if (uploadSection) uploadSection.style.display = 'block';
+    if (tab === 'style') {
+      if (apiState.uploadedStylePreviewDataUrl) {
+        renderUploadedStylePreview(apiState.uploadedStylePreviewDataUrl, apiState.uploadedStyleFileName || '上传款式');
+      } else {
+        renderUploadArea('style');
+      }
+    } else {
+      if (apiState.uploadedHandPreviewDataUrl) {
+        renderUploadedHandPreview(apiState.uploadedHandPreviewDataUrl);
+      } else {
+        renderUploadArea('hand');
+      }
+    }
+  };
+
+  window.handleStyleUpload = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    form.append('name', file.name.replace(/\.[^.]+$/, '') || '上传款式');
+
+    fetch(apiUrl('/api/upload_style'), {method: 'POST', body: form})
+      .then(r => r.ok ? r.json() : r.json().then(data => { throw new Error(data.error || '上传款式失败'); }))
+      .then(data => {
+        apiState.selectedStyleId = data.style_id;
+        apiState.selectedReferenceImage = data.reference_image || data.style_image_path || '';
+        apiState.uploadedStyleImageUrl = data.image_url || data.style_image_url || '';
+        styleSelected = true;
+        updateTryonStatus();
+      })
+      .catch(err => {
+        console.error(err);
+        alert('上传款式失败：' + err.message);
+      });
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      apiState.uploadedStylePreviewDataUrl = e.target.result;
+      apiState.uploadedStyleFileName = file.name;
+      renderUploadedStylePreview(e.target.result, file.name);
+      styleSelected = true;
+      updateTryonStatus();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.selectFavForTryonById = function(id, el) {
+    const style = favoriteCatalog().get(Number(id));
+    selectFavoriteStyleForTryon(style, el);
+  };
+
+  document.addEventListener('DOMContentLoaded', function() { installProfileHooks(); initBackendDemo(); });
+})();
+</script>
+
+</body>
+</html>

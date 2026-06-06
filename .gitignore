@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# 环境变量（含 API Key）
+.env
+.env.local
+
+# 虚拟环境
+.venv
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 模型权重（太大）
+*.pth
+*.ckpt
+*.safetensors
+models/
+
+# 压缩包（太大）
+*.zip
+*.tar.gz
+*.rar
+
+# 数据库（含用户行为，含隐私）
+*.db
+*.sqlite
+*.sqlite3
+
+# 缩略图缓存
+**/_thumbs/
+
+# 日志
+*.log
+
+# 训练/调试/输出数据（不需要进 Git）
+virtual-nail/data/test_images/
+virtual-nail/data/test_masks/
+virtual-nail/data/overlays/
+virtual-nail/data/reference/
+virtual-nail/data/debug/
+virtual-nail/data/demo_uploads/
+virtual-nail/data/output/
+virtual-nail/data/inspiration_cache/
+virtual-nail/data/产品常规效果图/
+virtual-nail/data/广告宣传效果图/
+virtual-nail/data/highlight/
+virtual-nail/data/images/
+virtual-nail/data/masks/
+virtual-nail/data/verification/
